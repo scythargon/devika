@@ -14,7 +14,7 @@ class Action:
     def __init__(self, base_model: str):
         config = Config()
         self.project_dir = config.get_projects_dir()
-        
+
         self.llm = LLM(model_id=base_model)
 
     def render(
@@ -37,13 +37,14 @@ class Action:
     def execute(self, conversation: list, project_name: str) -> str:
         prompt = self.render(conversation)
         response = self.llm.inference(prompt, project_name)
-        
+
         valid_response = self.validate_response(response)
-        
+
         while not valid_response:
-            print(colored(f"{self.__class__.__name__}: Invalid response from the model: {response}, trying again...", "red"))
+            print(colored(f"{self.__class__.__name__}: Invalid response from the model: {response}, trying again...",
+                          "red"))
             return self.execute(conversation, project_name)
-        
+
         print("===" * 10)
         print(valid_response)
 
