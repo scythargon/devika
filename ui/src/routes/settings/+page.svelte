@@ -1,6 +1,7 @@
 <script>
-  import { updateSettings, fetchSettings } from "$lib/api";
-  import { onMount } from "svelte";
+  import {fetchInitialData, fetchSettings, updateSettings, deleteAllProjects} from "$lib/api";
+  import {onMount} from "svelte";
+  import {agentState, messages, tokenUsage} from "$lib/store.js";
 
   let settings = {};
   let editMode = false;
@@ -37,6 +38,18 @@
     editMode = !editMode;
   };
 
+  const deleteAll = async () => {
+    if (confirm(`Are you sure you want to delete all projects?`)) {
+      console.log("deleting all projects")
+      await deleteAllProjects();
+      await fetchInitialData();
+      messages.set([]);
+      agentState.set(null);
+      tokenUsage.set(0);
+      localStorage.setItem("selectedProject", "");
+    }
+  };
+
   const edit = () => {
     editMode = !editMode;
   };
@@ -47,7 +60,7 @@
   <div class="flex flex-col w-full">
     {#if settings["API_KEYS"]}
       <div class="flex gap-4 w-full">
-        
+
         <div class="flex flex-col gap-4 w-full">
           <h2 class="text-xl">API Keys</h2>
           <div class="flex flex-col gap-4">
@@ -58,16 +71,16 @@
                   type="text"
                   bind:value={settings["API_KEYS"][key]}
                   name={key}
-                  class="p-2 border-2 w-1/2 rounded-lg {editMode ? '' : 'bg-gray-100 text-gray-500'}"
+                  class="p-2 border-2 w-1/2 rounded-lg dark:bg-slate-900 {editMode ? '' : 'bg-gray-100 text-gray-500'}"
                   readonly={!editMode}
                 />
               </div>
             {/each}
           </div>
         </div>
-        
+
         <div class="flex flex-col gap-8 w-full">
-          
+
           <div class="flex flex-col gap-2">
             <h2 class="text-xl">API Endpoints</h2>
             <div class="flex flex-col gap-4">
@@ -78,13 +91,13 @@
                     type="text"
                     bind:value={settings["API_ENDPOINTS"][key]}
                     name={key}
-                    class="p-2 w-1/2 border-2 rounded-lg {editMode ? '' : 'bg-gray-100 text-gray-500'}"
+                    class="p-2 w-1/2 border-2 rounded-lg dark:bg-slate-900 {editMode ? '' : 'bg-gray-100 text-gray-500'}"
                     readonly={!editMode}
                   />
                 </div>
               {/each}
             </div>
-            
+
           </div>
           <div class="flex flex-col gap-2">
             <h2 class="text-xl">Logging</h2>
@@ -96,18 +109,18 @@
                     type="text"
                     bind:value={settings["LOGGING"][key]}
                     name={key}
-                    class="p-2 border-2 rounded-lg {editMode ? '' : 'bg-gray-100 text-gray-500'}"
+                    class="p-2 border-2 rounded-lg dark:bg-slate-900 {editMode ? '' : 'bg-gray-100 text-gray-500'}"
                     readonly={!editMode}
                     placeholder="true/false"
                   />
                 </div>
               {/each}
-          </div>
+            </div>
 
           </div>
 
           <!-- edit and save button -->
-         <div class="flex gap-4">
+          <div class="flex gap-4">
             {#if !editMode}
               <button
                 id="btn-edit"
@@ -127,6 +140,14 @@
                 Save
               </button>
             {/if}
+            <button
+              id="btn-delete"
+              class="p-2 border-2 rounded-lg flex gap-3 items-center hover:bg-gray-200 bg-amber-600"
+              on:click={deleteAll}
+            >
+              <i class="fas fa-trash-can"></i>
+              Delete All Projects
+            </button>
           </div>
         </div>
 

@@ -44,6 +44,11 @@ class ProjectManager:
                 session.delete(project_state)
                 session.commit()
 
+    def delete_all_projects(self):
+        with Session(self.engine) as session:
+            session.query(Projects).delete()
+            session.commit()
+
     def add_message_to_project(self, project: str, message: dict):
         with Session(self.engine) as session:
             project_state = session.query(Projects).filter(Projects.project == project).first()

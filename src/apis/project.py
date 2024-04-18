@@ -32,6 +32,13 @@ def delete_project():
     return jsonify({"message": "Project deleted"})
 
 
+@project_bp.route("/api/delete-all-projects", methods=["POST"])
+@route_logger(logger)
+def delete_all_projects():
+    manager.delete_all_projects()
+    return jsonify({"message": "All projects deleted"})
+
+
 @project_bp.route("/api/download-project", methods=["GET"])
 @route_logger(logger)
 def download_project():

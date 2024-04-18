@@ -6,7 +6,7 @@ import {
   messages,
   searchEngineList,
 } from "./store";
-import { io } from "socket.io-client";
+import {io} from "socket.io-client";
 
 
 const getApiBaseUrl = () => {
@@ -43,7 +43,7 @@ export async function createProject(projectName) {
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ project_name: projectName }),
+    body: JSON.stringify({project_name: projectName}),
   });
   projectList.update((projects) => [...projects, projectName]);
 }
@@ -54,7 +54,17 @@ export async function deleteProject(projectName) {
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ project_name: projectName }),
+    body: JSON.stringify({project_name: projectName}),
+  });
+}
+
+export async function deleteAllProjects() {
+  await fetch(`${API_BASE_URL}/api/delete-all-projects`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({}),
   });
 }
 
@@ -65,7 +75,7 @@ export async function fetchMessages() {
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ project_name: projectName }),
+    body: JSON.stringify({project_name: projectName}),
   });
   const data = await response.json();
   messages.set(data.messages);
@@ -78,7 +88,7 @@ export async function fetchAgentState() {
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ project_name: projectName }),
+    body: JSON.stringify({project_name: projectName}),
   });
   const data = await response.json();
   agentState.set(data.state);
@@ -114,7 +124,7 @@ export async function getBrowserSnapshot(snapshotPath) {
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ snapshot_path: snapshotPath }),
+    body: JSON.stringify({snapshot_path: snapshotPath}),
   });
   const data = await response.json();
   return data.snapshot;
