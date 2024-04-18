@@ -110,7 +110,7 @@
     </button>
     <div
       id="project-dropdown"
-      class="absolute left-0 z-10 mt-2 w-40 origin-top-left rounded-md bg-gray-100 shadow-lg max-h-96 overflow-y-auto hidden"
+      class="absolute left-0 z-10 mt-2 w-40 origin-top-left rounded-md bg-gray-100 dark:bg-slate-800 shadow-lg max-h-96 overflow-y-auto hidden"
       role="menu"
       aria-orientation="vertical"
       aria-labelledby="project-button"
@@ -180,7 +180,7 @@
 
       <div
         id="search-engine-dropdown"
-        class="absolute left-0 z-10 mt-2 w-40 origin-top-right rounded-md bg-gray-100 shadow-lg max-h-96 overflow-y-auto hidden"
+        class="absolute left-0 z-10 mt-2 w-40 origin-top-right rounded-md bg-gray-100 dark:bg-slate-800 shadow-lg max-h-96 overflow-y-auto hidden"
         role="menu"
         aria-orientation="vertical"
         aria-labelledby="search-engine-button"
@@ -222,7 +222,7 @@
 
       <div
         id="model-dropdown"
-        class="absolute right-0 z-10 mt-2 w-64 origin-top-right rounded-md bg-gray-100 shadow-lg max-h-96 overflow-y-auto hidden"
+        class="absolute right-0 z-10 mt-2 w-64 origin-top-right rounded-md bg-gray-100 dark:bg-slate-800 shadow-lg max-h-96 overflow-y-auto hidden"
         role="menu"
         aria-orientation="vertical"
         aria-labelledby="model-button"

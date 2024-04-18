@@ -12,19 +12,30 @@
 
   onMount(async () => {
     let xterm = await import('xterm');
-    let xtermAddonFit = await import('xterm-addon-fit')
+    let xtermAddonFit = await import('xterm-addon-fit');
+
+    const isDark = (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches));
+
+    const theme = {
+      background: "#d3d3d3",
+      foreground: "#000000",
+      innerText: "#000000",
+      cursor: "#000000",
+    };
+
+    if (isDark) {
+      theme.background = "#0d1117";
+      theme.foreground = "#e6edf3";
+      theme.innerText = "#e6edf3";
+      theme.cursor = "#e6edf3";
+    }
 
     terminal = new xterm.Terminal({
       disableStdin: true,
       cursorBlink: true,
       convertEol: true,
       rows: 1,
-      theme: {
-        background: "#d3d3d3",
-        foreground: "#000000",
-        innerText: "#000000",
-        cursor: "#000000",
-      },
+      theme
     });
     fitAddon = new xtermAddonFit.FitAddon();
     terminal.loadAddon(fitAddon);
@@ -80,7 +91,7 @@
   </div>
   <div
     id="terminal-content"
-    class="h-full w-full rounded-bl-lg "
+    class="h-full w-full rounded-bl-lg"
     bind:this={terminalElement}
   ></div>
 </div>

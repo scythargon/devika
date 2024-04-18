@@ -20,7 +20,7 @@
     <input
       type="text"
       id="browser-url"
-      class="flex-grow border-2 rounded-lg p-2 overflow-x-auto"
+      class="flex-grow border-2 rounded-lg p-2 overflow-x-auto dark:bg-gray-900"
       placeholder="chrome://newtab"
       value={$agentState?.browser_session.url || ""}
       
