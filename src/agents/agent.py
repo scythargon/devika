@@ -1,37 +1,35 @@
-from .planner import Planner
-from .researcher import Researcher
-from .formatter import Formatter
-from .coder import Coder
-from .action import Action
-from .internal_monologue import InternalMonologue
-from .answer import Answer
-from .runner import Runner
-from .feature import Feature
-from .patcher import Patcher
-from .reporter import Reporter
-from .decision import Decision
-from .executor import Executor
+import asyncio
+import json
+import platform
+import time
 
-from src.project import ProjectManager
-from src.state import AgentState
-from src.logger import Logger
+import tiktoken
 
 from src.bert.sentence import SentenceBert
-from src.memory import KnowledgeBase
-from src.browser.search import BingSearch, GoogleSearch, DuckDuckGoSearch
 from src.browser import Browser
 from src.browser import start_interaction
-from src.filesystem import ReadCode
-from src.services import Netlify
+from src.browser.search import BingSearch, GoogleSearch, DuckDuckGoSearch
 from src.documenter.pdf import PDF
-
-import json
-import time
-import platform
-import tiktoken
-import asyncio
-
+from src.filesystem import ReadCode
+from src.logger import Logger
+from src.memory import KnowledgeBase
+from src.project import ProjectManager
+from src.services import Netlify
 from src.socket_instance import emit_agent
+from src.state import AgentState
+from .action import Action
+from .answer import Answer
+from .coder import Coder
+from .decision import Decision
+from .executor import Executor
+from .feature import Feature
+from .formatter import Formatter
+from .internal_monologue import InternalMonologue
+from .patcher import Patcher
+from .planner import Planner
+from .reporter import Reporter
+from .researcher import Researcher
+from .runner import Runner
 
 
 class Agent:
@@ -374,6 +372,6 @@ class Agent:
         self.agent_state.set_agent_active(project_name, False)
         self.agent_state.set_agent_completed(project_name, True)
         self.project_manager.add_message_from_devika(project_name,
-                                                     "I have completed the my task. \n"
+                                                     "I have completed my task. \n"
                                                      "if you would like me to do anything else, please let me know. \n"
                                                      )
