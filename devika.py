@@ -5,10 +5,11 @@
 # import eventlet
 # eventlet.monkey_patch()
 from gevent import monkey
+
 monkey.patch_all()
 from src.init import init_devika
-init_devika()
 
+init_devika()
 
 from flask import Flask, request, jsonify, send_file
 from flask_cors import CORS
@@ -26,16 +27,13 @@ from src.state import AgentState
 from src.agents import Agent
 from src.llm import LLM
 
-
 app = Flask(__name__)
 CORS(app)
 app.register_blueprint(project_bp)
 socketio.init_app(app)
 
-
 log = logging.getLogger("werkzeug")
 log.disabled = True
-
 
 TIKTOKEN_ENC = tiktoken.get_encoding("cl100k_base")
 
@@ -99,6 +97,7 @@ def handle_message(data):
     #     thread = Thread(target=lambda: agent.execute(message, project_name))
     #     thread.start()
 
+
 @socketio.on('regenerate')
 def regenerate(data):
     base_model = data.get('base_model')
@@ -108,6 +107,7 @@ def regenerate(data):
     agent = Agent(base_model=base_model, search_engine=search_engine)
     last_user_message = manager.get_latest_message_from_user(project_name)
     agent.subsequent_execute(last_user_message, project_name)
+
 
 @socketio.on('stop')
 def regenerate(data):

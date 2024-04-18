@@ -79,7 +79,6 @@ class Agent:
     def search_queries(self, queries: list, project_name: str) -> dict:
         results = {}
 
-
         knowledge_base = KnowledgeBase()
         web_search = None
 
@@ -151,7 +150,7 @@ class Agent:
                     project_name_space_url)
                 response = f"I have generated the PDF document. You can download it from here: {pdf_download_url}"
 
-                #asyncio.run(self.open_page(project_name, pdf_download_url))
+                # asyncio.run(self.open_page(project_name, pdf_download_url))
 
                 self.project_manager.add_message_from_devika(project_name, response)
 
@@ -267,7 +266,7 @@ class Agent:
                 project_name_space_url)
             response = f"I have generated the PDF document. You can download it from here: {pdf_download_url}"
 
-            #asyncio.run(self.open_page(project_name, pdf_download_url))
+            # asyncio.run(self.open_page(project_name, pdf_download_url))
 
             self.project_manager.add_message_from_devika(project_name, response)
 
