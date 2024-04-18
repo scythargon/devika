@@ -37,6 +37,7 @@ selectedProject.subscribe((value) => {
 
 selectedModel.subscribe((value) => {
   if (typeof window !== 'undefined' && window.localStorage) {
+    console.log("selectedModel subscriber: ", value)
     localStorage.setItem('selectedModel', value);
   }
 });

@@ -1,26 +1,21 @@
 <script>
-  import { onMount } from "svelte";
-  import { projectList, modelList, internet, tokenUsage, agentState, messages, searchEngineList} from "$lib/store";
-  import { createProject, fetchMessages, fetchInitialData, deleteProject, fetchAgentState} from "$lib/api";
-  import { get } from "svelte/store";
+  import {onMount} from "svelte";
+  import {agentState, internet, messages, modelList, projectList, searchEngineList, tokenUsage} from "$lib/store";
+  import {createProject, deleteProject, fetchAgentState, fetchInitialData, fetchMessages} from "$lib/api";
+  import {get} from "svelte/store";
 
   let selectedProject;
   let selectedModel;
   let selectedSearchEngine;
 
-  const checkListAndSetItem = (list, itemKey, defaultItem) => {
-    if (get(list) && get(list).length > 0) {
-      const item = localStorage.getItem(itemKey);
-      return item ? item : defaultItem;
-    } else {
-      localStorage.setItem(itemKey, "");
-      return defaultItem;
-    }
+  const getFromLocalStorageOrFallback = (key, fallback) => {
+    const item = localStorage.getItem(key);
+    return item ? item : fallback;
   };
 
-  selectedProject = checkListAndSetItem( projectList, "selectedProject", "Select Project");
-  selectedModel = checkListAndSetItem( modelList, "selectedModel", "Select Model");
-  selectedSearchEngine = checkListAndSetItem( searchEngineList, "selectedSearchEngine", "Select Search Engine");
+  selectedProject = getFromLocalStorageOrFallback("selectedProject", "Select Project");
+  selectedModel = getFromLocalStorageOrFallback("selectedModel", "Select Model");
+  selectedSearchEngine = getFromLocalStorageOrFallback("selectedSearchEngine", "Select Search Engine");
 
 
   function selectProject(project) {
@@ -93,7 +88,7 @@
       document.removeEventListener("click", closeDropdowns);
     };
   });
-  
+
 </script>
 
 <div class="control-panel">
