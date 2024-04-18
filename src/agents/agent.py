@@ -10,6 +10,7 @@ from .feature import Feature
 from .patcher import Patcher
 from .reporter import Reporter
 from .decision import Decision
+from .executor import Executor
 
 from src.project import ProjectManager
 from src.state import AgentState
@@ -56,6 +57,7 @@ class Agent:
         self.internal_monologue = InternalMonologue(base_model=base_model)
         self.answer = Answer(base_model=base_model)
         self.runner = Runner(base_model=base_model)
+        self.executor = Executor(base_model=base_model)
         self.feature = Feature(base_model=base_model)
         self.patcher = Patcher(base_model=base_model)
         self.reporter = Reporter(base_model=base_model)
@@ -182,7 +184,7 @@ class Agent:
         Subsequent flow of execution
         """
 
-        os_system = platform.platform()
+        os_system = platform.system()
 
         self.agent_state.set_agent_active(project_name, True)
 
@@ -206,6 +208,16 @@ class Agent:
         elif action == "run":
             project_path = self.project_manager.get_project_path(project_name)
             self.runner.execute(
+                conversation=conversation,
+                code_markdown=code_markdown,
+                os_system=os_system,
+                project_path=project_path,
+                project_name=project_name
+            )
+
+        elif action == "execute":
+            project_path = self.project_manager.get_project_path(project_name)
+            self.executor.execute(
                 conversation=conversation,
                 code_markdown=code_markdown,
                 os_system=os_system,

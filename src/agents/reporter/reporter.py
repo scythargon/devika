@@ -1,10 +1,11 @@
-import json
+from pathlib import Path
 
 from jinja2 import Environment, BaseLoader
 
 from src.llm import LLM
 
-PROMPT = open("src/agents/reporter/prompt.jinja2").read().strip()
+PROMPT = Path(__file__).parent.joinpath('prompt.jinja2').read_text().strip()
+
 
 class Reporter:
     def __init__(self, base_model: str):
@@ -31,13 +32,14 @@ class Reporter:
         code_markdown: str,
         project_name: str
     ) -> str:
+        print(f"{self.__class__.__name__}: Executing...")
         prompt = self.render(conversation, code_markdown)
         response = self.llm.inference(prompt, project_name)
         
         valid_response = self.validate_response(response)
         
         while not valid_response:
-            print("Invalid response from the model, trying again...")
+            print(f"Reporter: Invalid response from the model: {response}, trying again...")
             return self.execute(conversation, code_markdown, project_name)
 
         return valid_response

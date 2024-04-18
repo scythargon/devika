@@ -117,6 +117,13 @@ class AgentState:
                 return json.loads(agent_state.state_stack_json)[-1]["agent_is_active"]
             return None
 
+    def is_agent_interruped(self, project: str):
+        with Session(self.engine) as session:
+            agent_state = session.query(AgentStateModel).filter(AgentStateModel.project == project).first()
+            if agent_state:
+                return json.loads(agent_state.state_stack_json)[-1]["internal_monologue"] == "Interrupted by user"
+            return None
+
     def set_agent_completed(self, project: str, is_completed: bool):
         with Session(self.engine) as session:
             agent_state = session.query(AgentStateModel).filter(AgentStateModel.project == project).first()

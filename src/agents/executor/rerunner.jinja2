@@ -15,25 +15,46 @@ User's last message: {{ conversation[-1] }}
 
 System Operating System: {{ system_os }}
 
-Your task is to invoke the system to run this code or a shell command.
+You tried to execute the following commands to run this project:
+```
+{% for command in commands %}
+$ {{ command }}
+{% endfor %}
+```
 
-Your response should be in the following format:
+But it resulted in the following error:
 ```
-<commands>
-  <command><![CDATA[ pip3 install -r requirements.txt ]]></command>
-  <command><![CDATA[ python3 main.py ]]></command>
-</commands>
+$ {{ commands[-1] }}
+{{ error }}
 ```
+
+Now identify whether this error is caused by the code or the command.
+If it is caused by the command, provide the correct command to run the project.
+If it is caused by the code, respond with the patch action response.
+
+Patch Action Response:
+<root>
+  <action>patch</action>
+  <response><![CDATA[A response like: I encountered an error while running the project. Seems to be {problem}. Let me try fixing it.]]></response>
+</root>
+
+Command Fix Response:
+<root>
+  <action>command</action>
+  <command><![CDATA[{Fixed command here}]]></command>
+  <response><![CDATA[A response like: I encountered an error while running the command. Seems to be {problem}. Let me try fixing it.]]></response>
+</root>
 
 Rules:
 - Do not damage users machine or data. Do not delete any files.
 - You can access the whole system, so you can run commands like `ls`, `cat`, `echo`, etc.
 - Do not use the `sudo` command.
 - You wrote the code, never address the user directly. You should not say things like "The code you provided", instead use "The code I wrote".
-- Read the full context, including the code (if any) carefully to construct the commands required to run the project.
+- Read the full context, including the code (if any) carefully to construct the commands required to fix the error while running the project.
 - The command should be compatible with the system operating system provided.
 - You are inside the project directory, so just run the commands as if you're inside the project directory as the working directory.
 - Do not do "cd" into the project directory. The system is already in the project directory.
+- Correctly identify whether the error is caused by the code or the command. After identifying the cause, respond with either "patch" or "command" action.
 
 Do not include any additional information in the response other than what is shown in the example above.
 Do not include any information other than the response and action in the XML response.

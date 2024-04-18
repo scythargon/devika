@@ -64,6 +64,13 @@
                 '<u><a href="$1" target="_blank" style="font-weight: bold;">$1</a></u>'
               )}
             </div>
+          {:else if /```(.*?)```/gs.test(message.message)}
+            <div class="w-full" contenteditable="false">
+              {@html message.message.replace(
+                /```(.*?)```/gs,
+                '<pre>$1</pre>'
+              )}
+            </div>
           {:else}
             <div
               class="w-full"

@@ -1,5 +1,6 @@
 import os
 import time
+from pathlib import Path
 
 from jinja2 import Environment, BaseLoader
 from typing import List, Dict, Union
@@ -8,7 +9,8 @@ from src.config import Config
 from src.llm import LLM
 from src.state import AgentState
 
-PROMPT = open("src/agents/patcher/prompt.jinja2", "r").read().strip()
+PROMPT = Path(__file__).parent.joinpath('prompt.jinja2').read_text().strip()
+
 
 class Patcher:
     def __init__(self, base_model: str):
@@ -108,6 +110,7 @@ class Patcher:
         system_os: dict,
         project_name: str
     ) -> str:
+        print(f"{self.__class__.__name__}: Executing...")
         prompt = self.render(
             conversation,
             code_markdown,
@@ -120,7 +123,7 @@ class Patcher:
         valid_response = self.validate_response(response)
         
         while not valid_response:
-            print("Invalid response from the model, trying again...")
+            print(f"Patcher: Invalid response from the model: {response}, trying again...")
             return self.execute(
                 conversation,
                 code_markdown,

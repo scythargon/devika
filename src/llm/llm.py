@@ -1,5 +1,6 @@
 import tiktoken
 from typing import List, Tuple
+from termcolor import colored
 
 from src.socket_instance import emit_agent
 from .ollama_client import Ollama
@@ -78,7 +79,7 @@ class LLM:
         self.update_global_token_usage(prompt, project_name)
 
         model_enum = self.model_id_to_enum_mapping().get(self.model_id)
-        print(f"Model: {self.model_id}, Enum: {model_enum}")
+        # print(f"Model: {self.model_id}, Enum: {model_enum}")
         if model_enum is None:
             raise ValueError(f"Model {self.model_id} not supported")
 
@@ -93,7 +94,9 @@ class LLM:
 
         try:
             model = model_mapping[model_enum]
+            print(colored(f"Prompting {model} model: \n====\n...{prompt[-2000:]}\n====\n", "light_green"))
             response = model.inference(self.model_id, prompt).strip()
+            print(colored(f"Model response: \n====\n{response}\n====\n", "light_blue"))
         except KeyError:
             raise ValueError(f"Model {model_enum} not supported")
 

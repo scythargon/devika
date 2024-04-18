@@ -1,5 +1,6 @@
 import os
 import time
+from pathlib import Path
 
 from jinja2 import Environment, BaseLoader
 from typing import List, Dict, Union
@@ -8,7 +9,8 @@ from src.config import Config
 from src.llm import LLM
 from src.state import AgentState
 
-PROMPT = open("src/agents/feature/prompt.jinja2", "r").read().strip()
+PROMPT = Path(__file__).parent.joinpath('prompt.jinja2').read_text().strip()
+
 
 
 class Feature:
@@ -103,13 +105,14 @@ class Feature:
         system_os: str,
         project_name: str
     ) -> str:
+        print(f"{self.__class__.__name__}: Executing...")
         prompt = self.render(conversation, code_markdown, system_os)
         response = self.llm.inference(prompt, project_name)
         
         valid_response = self.validate_response(response)
         
         while not valid_response:
-            print("Invalid response from the model, trying again...")
+            print(f"Feature: Invalid response from the model: {response}, trying again...")
             return self.execute(conversation, code_markdown, system_os, project_name)
         
         self.emulate_code_writing(valid_response, project_name)

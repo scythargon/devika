@@ -42,7 +42,7 @@ TIKTOKEN_ENC = tiktoken.get_encoding("cl100k_base")
 os.environ["TOKENIZERS_PARALLELISM"] = "false"
 
 manager = ProjectManager()
-AgentState = AgentState()
+agent_state = AgentState()
 config = Config()
 logger = Logger()
 
@@ -82,19 +82,42 @@ def handle_message(data):
 
     agent = Agent(base_model=base_model, search_engine=search_engine)
 
-    if action == 'continue':
-        new_message = manager.new_message()
-        new_message['message'] = message
-        new_message['from_devika'] = False
-        manager.add_message_from_user(project_name, new_message['message'])
+    # if action == 'continue':
+    new_message = manager.new_message()
+    new_message['message'] = message
+    new_message['from_devika'] = False
+    manager.add_message_from_user(project_name, new_message['message'])
 
-        if AgentState.is_agent_completed(project_name):
-            thread = Thread(target=lambda: agent.subsequent_execute(message, project_name))
-            thread.start()
+    # if AgentState.is_agent_completed(project_name):
+    # thread = Thread(target=lambda: agent.subsequent_execute(message, project_name))
+    # thread.start()
 
-    if action == 'execute_agent':
-        thread = Thread(target=lambda: agent.execute(message, project_name))
-        thread.start()
+    # non-threaded debugging variant
+    agent.subsequent_execute(message, project_name)
+
+    # if action == 'execute_agent' and False:
+    #     thread = Thread(target=lambda: agent.execute(message, project_name))
+    #     thread.start()
+
+@socketio.on('regenerate')
+def regenerate(data):
+    base_model = data.get('base_model')
+    project_name = data.get('project_name')
+    search_engine = data.get('search_engine').lower()
+
+    agent = Agent(base_model=base_model, search_engine=search_engine)
+    last_user_message = manager.get_latest_message_from_user(project_name)
+    agent.subsequent_execute(last_user_message, project_name)
+
+@socketio.on('stop')
+def regenerate(data):
+    print("STOPPING")
+    project_name = data.get('project_name')
+    current_state = agent_state.get_latest_state(project_name)
+    new_state = agent_state.new_state()
+    new_state["browser_session"] = current_state["browser_session"]  # keep the browser session
+    new_state["internal_monologue"] = "Interrupted by user"
+    agent_state.add_to_current_state(project_name, new_state)
 
 
 @app.route("/api/is-agent-active", methods=["POST"])
@@ -102,7 +125,7 @@ def handle_message(data):
 def is_agent_active():
     data = request.json
     project_name = data.get("project_name")
-    is_active = AgentState.is_agent_active(project_name)
+    is_active = agent_state.is_agent_active(project_name)
     return jsonify({"is_active": is_active})
 
 
@@ -111,8 +134,8 @@ def is_agent_active():
 def get_agent_state():
     data = request.json
     project_name = data.get("project_name")
-    agent_state = AgentState.get_latest_state(project_name)
-    return jsonify({"state": agent_state})
+    state = agent_state.get_latest_state(project_name)
+    return jsonify({"state": state})
 
 
 @app.route("/api/get-browser-snapshot", methods=["GET"])
@@ -126,8 +149,8 @@ def browser_snapshot():
 @route_logger(logger)
 def get_browser_session():
     project_name = request.args.get("project_name")
-    agent_state = AgentState.get_latest_state(project_name)
-    if not agent_state:
+    state = agent_state.get_latest_state(project_name)
+    if not state:
         return jsonify({"session": None})
     else:
         browser_session = agent_state["browser_session"]
@@ -138,11 +161,11 @@ def get_browser_session():
 @route_logger(logger)
 def get_terminal_session():
     project_name = request.args.get("project_name")
-    agent_state = AgentState.get_latest_state(project_name)
-    if not agent_state:
+    state = agent_state.get_latest_state(project_name)
+    if not state:
         return jsonify({"terminal_state": None})
     else:
-        terminal_state = agent_state["terminal_session"]
+        terminal_state = state["terminal_session"]
         return jsonify({"terminal_state": terminal_state})
 
 
@@ -169,7 +192,7 @@ def calculate_tokens():
 @route_logger(logger)
 def token_usage():
     project_name = request.args.get("project_name")
-    token_count = AgentState.get_latest_token_usage(project_name)
+    token_count = agent_state.get_latest_token_usage(project_name)
     return jsonify({"token_usage": token_count})
 
 

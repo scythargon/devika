@@ -42,7 +42,8 @@
   }
 
   async function createNewProject() {
-    const projectName = prompt('Enter the project name:');
+    const currentProjectList = get(projectList);
+    const projectName = `proj_${currentProjectList.length + 1}`;
     if (projectName) {
       await createProject(projectName);
       selectProject(projectName);

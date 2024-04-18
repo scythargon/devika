@@ -1,10 +1,13 @@
 import json
+from pathlib import Path
 
 from jinja2 import Environment, BaseLoader
 
 from src.llm import LLM
+from src.utils import take_json_text_from_triple_quotes
 
-PROMPT = open("src/agents/internal_monologue/prompt.jinja2").read().strip()
+PROMPT = Path(__file__).parent.joinpath('prompt.jinja2').read_text().strip()
+
 
 class InternalMonologue:
     def __init__(self, base_model: str):
@@ -17,6 +20,7 @@ class InternalMonologue:
 
     def validate_response(self, response: str):
         response = response.strip().replace("```json", "```")
+        response = take_json_text_from_triple_quotes(response)
         
         if response.startswith("```") and response.endswith("```"):
             response = response[3:-3].strip()
@@ -40,7 +44,7 @@ class InternalMonologue:
         valid_response = self.validate_response(response)
         
         while not valid_response:
-            print("Invalid response from the model, trying again...")
+            print(f"Internal: Invalid response from the model: {response}, trying again...")
             return self.execute(current_prompt, project_name)
 
         return valid_response

@@ -1,5 +1,6 @@
 import os
 import time
+from pathlib import Path
 
 from jinja2 import Environment, BaseLoader
 from typing import List, Dict, Union
@@ -9,12 +10,13 @@ from src.llm import LLM
 from src.state import AgentState
 from src.logger import Logger
 
-PROMPT = open("src/agents/coder/prompt.jinja2", "r").read().strip()
+PROMPT = Path(__file__).parent.joinpath('prompt.jinja2').read_text().strip()
+
 
 class Coder:
     def __init__(self, base_model: str):
         config = Config()
-        self.project_dir = config.get_projects_dir()
+        self.projects_dir = config.get_projects_dir()
         self.logger = Logger()
         self.llm = LLM(model_id=base_model)
 
@@ -68,7 +70,7 @@ class Coder:
         project_name = project_name.lower().replace(" ", "-")
 
         for file in response:
-            file_path = f"{self.project_dir}/{project_name}/{file['file']}"
+            file_path = f"{self.projects_dir}/{project_name}/{file['file']}"
             file_path_dir = file_path[:file_path.rfind("/")]
             os.makedirs(file_path_dir, exist_ok=True)
 
@@ -79,7 +81,7 @@ class Coder:
 
     def get_project_path(self, project_name: str):
         project_name = project_name.lower().replace(" ", "-")
-        return f"{self.project_dir}/{project_name}"
+        return f"{self.projects_dir}/{project_name}"
 
     def response_to_markdown_prompt(self, response: List[Dict[str, str]]) -> str:
         response = "\n".join([f"File: `{file['file']}`:\n```\n{file['code']}\n```" for file in response])
@@ -113,7 +115,7 @@ class Coder:
         valid_response = self.validate_response(response)
         
         while not valid_response:
-            print("Invalid response from the model, trying again...")
+            print(f"Code: Invalid response from the model: {response}, trying again...")
             return self.execute(step_by_step_plan, user_context, search_results, project_name)
         
         print(valid_response)

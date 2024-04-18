@@ -1,7 +1,7 @@
 <script>
-  import { socket } from "$lib/api";
-  import { agentState, messages } from "$lib/store";
-  import { calculateTokens } from "$lib/token";
+  import {socket} from "$lib/api";
+  import {agentState, messages} from "$lib/store";
+  import {calculateTokens} from "$lib/token";
 
   let isAgentActive = false;
 
@@ -10,10 +10,11 @@
   }
 
   let messageInput = "";
+
   async function handleSendMessage() {
     const projectName = localStorage.getItem("selectedProject");
     const selectedModel = localStorage.getItem("selectedModel");
-    const serachEngine = localStorage.getItem("selectedSearchEngine");
+    const searchEngine = localStorage.getItem("selectedSearchEngine");
 
     if (!projectName) {
       alert("Please select a project first!");
@@ -26,23 +27,53 @@
 
     if (messageInput.trim() !== "" && !isAgentActive) {
       if ($messages.length === 0) {
-        socket.emit("user-message", { 
+        socket.emit("user-message", {
           action: "execute_agent",
           message: messageInput,
           base_model: selectedModel,
           project_name: projectName,
-          search_engine: serachEngine,
+          search_engine: searchEngine,
         });
       } else {
-        socket.emit("user-message", { 
+        socket.emit("user-message", {
           action: "continue",
           message: messageInput,
           base_model: selectedModel,
           project_name: projectName,
-          search_engine: serachEngine,
+          search_engine: searchEngine,
         });
       }
       messageInput = "";
+    }
+  }
+
+  async function handleRegenerate() {
+    const projectName = localStorage.getItem("selectedProject");
+    const selectedModel = localStorage.getItem("selectedModel");
+    const searchEngine = localStorage.getItem("selectedSearchEngine");
+
+    if (!projectName) {
+      alert("Please select a project first!");
+      return;
+    }
+    if (!selectedModel) {
+      alert("Please select a model first!");
+      return;
+    }
+
+    if (!isAgentActive) {
+      socket.emit("regenerate", {
+        base_model: selectedModel,
+        project_name: projectName,
+        search_engine: searchEngine,
+      });
+    }
+  }
+
+  async function handleStop() {
+    const projectName = localStorage.getItem("selectedProject");
+    if (isAgentActive) {
+      socket.emit("stop", {project_name: projectName});
     }
   }
 
@@ -68,14 +99,32 @@
     }}
   ></textarea>
   <div class="token-count text-gray-400 text-xs p-1">0 tokens</div>
-  <button
-    id="send-message-btn"
-    class={`px-4 py-3 text-white rounded-lg w-full ${isAgentActive ? "bg-slate-800" : "bg-black"}`}
-    on:click={handleSendMessage}
-    disabled={isAgentActive}
-  >
-    {@html isAgentActive ? "<i>Agent is busy...</i>" : "Send"}
-  </button>
+  <div class="flex space-x-2">
+    <button
+      id="send-message-btn"
+      class={`px-4 py-3 text-white rounded-lg flex-grow ${isAgentActive ? "bg-slate-800" : "bg-black"}`}
+      on:click={handleSendMessage}
+      disabled={isAgentActive}
+    >
+      {@html isAgentActive ? "<i>Agent is busy...</i>" : "Send"}
+    </button>
+    <button
+      id="refresh-btn"
+      class={`px-4 py-3 text-white rounded-lg w-auto ${isAgentActive ? "bg-slate-800" : "bg-blue-500"}`}
+      on:click={handleRegenerate}
+      disabled={isAgentActive}
+    >
+      <i class="fas fa-refresh"></i>
+    </button>
+    <button
+      id="stop-btn"
+      class={`px-4 py-3 text-white rounded-lg w-auto ${isAgentActive ? "bg-red-500" : "bg-slate-800"}`}
+      on:click={handleStop}
+      disabled={!isAgentActive}
+    >
+      <i class="fas fa-stop"></i>
+    </button>
+  </div>
 </div>
 
 <style>

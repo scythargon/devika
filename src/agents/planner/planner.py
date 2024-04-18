@@ -1,8 +1,10 @@
 from jinja2 import Environment, BaseLoader
+from pathlib import Path
 
 from src.llm import LLM
 
-PROMPT = open("src/agents/planner/prompt.jinja2").read().strip()
+PROMPT = Path(__file__).parent.joinpath('prompt.jinja2').read_text().strip()
+
 
 class Planner:
     def __init__(self, base_model: str):
