@@ -16,15 +16,14 @@ from flask_cors import CORS
 from src.socket_instance import socketio, emit_agent
 import os
 import logging
-from threading import Thread
 import tiktoken
 
 from src.apis.project import project_bp
 from src.config import Config
 from src.logger import Logger, route_logger
-from src.project import ProjectManager
+from src.project import ProjectManager, MessageSources
 from src.state import AgentState
-from src.agents import Agent
+from src.agents import Agent, Action
 from src.llm import LLM
 
 app = Flask(__name__)
@@ -55,10 +54,10 @@ def test_connect(data):
 @app.route("/api/data", methods=["GET"])
 @route_logger(logger)
 def data():
-    project = manager.get_project_list()
+    projects = manager.get_project_list()
     models = LLM().list_models()
     search_engines = ["Bing", "Google", "DuckDuckGo"]
-    return jsonify({"projects": project, "models": models, "search_engines": search_engines})
+    return jsonify({"projects": projects, "models": models, "search_engines": search_engines})
 
 
 @app.route("/api/messages", methods=["POST"])
@@ -78,20 +77,20 @@ def handle_message(data):
     project_name = data.get('project_name')
     search_engine = data.get('search_engine').lower()
 
-    agent = Agent(base_model=base_model, search_engine=search_engine)
+    # agent = Agent(base_model=base_model, search_engine=search_engine)
 
     # if action == 'continue':
-    new_message = manager.new_message()
-    new_message['message'] = message
-    new_message['from_devika'] = False
-    manager.add_message_from_user(project_name, new_message['message'])
+    # new_message = manager.new_message(MessageSources.USER, message)
+    manager.add_message_from_user(project_name, message)
+
+    agent = Action(project_name=project_name, base_model=base_model)
 
     # if AgentState.is_agent_completed(project_name):
     # thread = Thread(target=lambda: agent.subsequent_execute(message, project_name))
     # thread.start()
 
     # non-threaded debugging variant
-    agent.subsequent_execute(message, project_name)
+    agent.execute()
 
     # if action == 'execute_agent' and False:
     #     thread = Thread(target=lambda: agent.execute(message, project_name))
@@ -104,10 +103,8 @@ def regenerate(data):
     project_name = data.get('project_name')
     search_engine = data.get('search_engine').lower()
 
-    agent = Agent(base_model=base_model, search_engine=search_engine)
-    last_user_message = manager.get_latest_message_from_user(project_name)
-    agent.subsequent_execute(last_user_message, project_name)
-
+    agent = Action(project_name=project_name, base_model=base_model)
+    agent.execute()
 
 @socketio.on('stop')
 def regenerate(data):

@@ -40,7 +40,7 @@
         {/if}
         <div class="flex flex-col w-full">
           <p class="text-xs text-gray-400">
-            {message.from_devika ? "Devika" : "You"}
+            {message.source}
             <span class="timestamp">{new Date(message.timestamp).toLocaleTimeString()}</span>
           </p>
           {#if message.from_devika && message.message.startsWith("{")}

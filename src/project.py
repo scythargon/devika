@@ -1,3 +1,8 @@
+from typing_extensions import Unpack
+
+from typing import Type, TypeVar
+from typing import Literal
+
 import os
 import json
 import zipfile
@@ -14,22 +19,59 @@ class Projects(SQLModel, table=True):
     message_stack_json: str
 
 
+from enum import Enum
+from typing import Literal
+from dataclasses import dataclass
+
+
+class MessageSources(Enum):
+    DEVIKA = "Devika"  # Capital letter is because of fucking frontend, will refactor later
+    USER = "user"
+    SYSTEM = "system"
+
+
+# Using Literal with unpacked enum values
+T_MessageSources = Literal[MessageSources.DEVIKA, MessageSources.USER, MessageSources.SYSTEM]
+
+
+@dataclass
+class Message:
+    source: T_MessageSources
+    message: str
+    timestamp: str
+
+    def to_dict(self):
+        return {
+            "source": self.source.value,
+            "from_devika": self.source == MessageSources.DEVIKA,
+            "message": self.message,
+            "timestamp": self.timestamp
+        }
+
+
 class ProjectManager:
     def __init__(self):
         config = Config()
         sqlite_path = config.get_sqlite_db()
-        self.project_path = config.get_projects_dir()
+        self.projects_root_dir = config.get_projects_dir()
         self.engine = create_engine(f"sqlite:///{sqlite_path}")
         SQLModel.metadata.create_all(self.engine)
 
-    def new_message(self):
+    def new_message(self, source: T_MessageSources, message: str) -> Message:
         timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
-        return {
-            "from_devika": True,
-            "message": None,
-            "timestamp": timestamp
-        }
+        return Message(
+            source=source,
+            timestamp=timestamp,
+            message=message,
+        )
+
+        # return {
+        #     # "from_devika": True,
+        #     "source":
+        #     "message": None,
+        #     "timestamp": timestamp
+        # }
 
     def create_project(self, project: str):
         with Session(self.engine) as session:
@@ -49,31 +91,33 @@ class ProjectManager:
             session.query(Projects).delete()
             session.commit()
 
-    def add_message_to_project(self, project: str, message: dict):
+    def add_message_to_project(self, project: str, message: Message):
         with Session(self.engine) as session:
             project_state = session.query(Projects).filter(Projects.project == project).first()
             if project_state:
                 message_stack = json.loads(project_state.message_stack_json)
-                message_stack.append(message)
+                message_stack.append(message.to_dict())
                 project_state.message_stack_json = json.dumps(message_stack)
                 session.commit()
             else:
-                message_stack = [message]
+                message_stack = [message.to_dict()]
                 project_state = Projects(project=project, message_stack_json=json.dumps(message_stack))
                 session.add(project_state)
                 session.commit()
 
     def add_message_from_devika(self, project: str, message: str):
-        new_message = self.new_message()
-        new_message["message"] = message
-        emit_agent("server-message", {"messages": new_message})
+        new_message = self.new_message(MessageSources.DEVIKA, message)
+        emit_agent("server-message", {"messages": new_message.to_dict()})
         self.add_message_to_project(project, new_message)
 
     def add_message_from_user(self, project: str, message: str):
-        new_message = self.new_message()
-        new_message["message"] = message
-        new_message["from_devika"] = False
-        emit_agent("server-message", {"messages": new_message})
+        new_message = self.new_message(MessageSources.USER, message)
+        emit_agent("server-message", {"messages": new_message.to_dict()})
+        self.add_message_to_project(project, new_message)
+
+    def add_system_message(self, project: str, message: str):
+        new_message = self.new_message(MessageSources.SYSTEM, message)
+        emit_agent("server-message", {"messages": new_message.to_dict()})
         self.add_message_to_project(project, new_message)
 
     def get_messages(self, project: str):
@@ -125,15 +169,12 @@ class ProjectManager:
             if project_state:
                 message_stack = json.loads(project_state.message_stack_json)
                 for message in message_stack:
-                    if message["from_devika"]:
-                        formatted_messages.append(f"Devika: {message['message']}")
-                    else:
-                        formatted_messages.append(f"User: {message['message']}")
+                    formatted_messages.append(f"{message['source']}: {message['message']}")
 
             return formatted_messages
 
     def get_project_path(self, project: str):
-        return os.path.join(self.project_path, project.lower().replace(" ", "-"))
+        return os.path.join(self.projects_root_dir, project.lower().replace(" ", "-"))
 
     def project_to_zip(self, project: str):
         project_path = self.get_project_path(project)

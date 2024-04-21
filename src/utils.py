@@ -1,3 +1,4 @@
+import os
 import json
 import re
 import xml.etree.ElementTree as ET
@@ -75,3 +76,8 @@ def parse_xml_llm_response_commands(response):
         return {}
     commands = [cmd.text for cmd in root.findall('command')]
     return {"commands": commands}
+
+
+def ensure_dir_exists(path):
+    if not os.path.exists(path):
+        os.makedirs(path, exist_ok=True)
