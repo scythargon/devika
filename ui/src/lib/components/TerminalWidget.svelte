@@ -80,8 +80,8 @@
   }
 </script>
 
-<div class="flex flex-col border-2 rounded-lg h-1/2">
-  <div class="p-2 flex items-center border-b">
+<div class="flex flex-col border-2 dark:border-blue-900 rounded-lg h-1/2">
+  <div class="p-2 flex items-center border-b dark:border-blue-900">
     <div class="flex space-x-2 ml-2 mr-4">
       <div class="w-3 h-3 bg-red-500 rounded-full"></div>
       <div class="w-3 h-3 bg-yellow-400 rounded-full"></div>

@@ -94,7 +94,7 @@ class LLM:
 
         try:
             model = model_mapping[model_enum]
-            print(colored(f"Prompting {self.model_id} model: \n====\n...{prompt[-2000:]}\n====\n", "light_green"))
+            print(colored(f"Prompting {self.model_id} model: \n====\n...{prompt[-2000:-1000]}\n====\n", "light_green"))
             response = model.inference(self.model_id, prompt).strip()
             print(colored(f"Model response: \n====\n{response}\n====\n", "light_blue"))
         except KeyError:

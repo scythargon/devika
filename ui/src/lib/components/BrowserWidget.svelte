@@ -10,8 +10,8 @@
 
 </script>
 
-<div class="flex flex-col border-2 rounded-lg h-1/2 overflow-y-auto">
-  <div class="p-2 flex items-center border-b">
+<div class="flex flex-col border-2 rounded-lg h-1/2 overflow-y-auto dark:border-blue-900">
+  <div class="p-2 flex items-center border-b dark:border-blue-900">
     <div class="flex space-x-2 ml-2 mr-4">
       <div class="w-3 h-3 bg-red-500 rounded-full"></div>
       <div class="w-3 h-3 bg-yellow-400 rounded-full"></div>
@@ -20,7 +20,7 @@
     <input
       type="text"
       id="browser-url"
-      class="flex-grow border-2 rounded-lg p-2 overflow-x-auto dark:bg-gray-900"
+      class="flex-grow dark:border-blue-900 border-2 rounded-lg p-2 overflow-x-auto dark:bg-gray-900"
       placeholder="chrome://newtab"
       value={$agentState?.browser_session.url || ""}
       

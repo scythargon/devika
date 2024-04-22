@@ -71,7 +71,7 @@
                   type="text"
                   bind:value={settings["API_KEYS"][key]}
                   name={key}
-                  class="p-2 border-2 w-1/2 rounded-lg dark:bg-slate-900 {editMode ? '' : 'bg-gray-100 text-gray-500'}"
+                  class="p-2 border-2 dark:border-blue-900 w-1/2 rounded-lg dark:bg-slate-900 {editMode ? '' : 'bg-gray-100 text-gray-500'}"
                   readonly={!editMode}
                 />
               </div>
@@ -91,7 +91,7 @@
                     type="text"
                     bind:value={settings["API_ENDPOINTS"][key]}
                     name={key}
-                    class="p-2 w-1/2 border-2 rounded-lg dark:bg-slate-900 {editMode ? '' : 'bg-gray-100 text-gray-500'}"
+                    class="p-2 w-1/2 border-2 dark:border-blue-900 rounded-lg dark:bg-slate-900 {editMode ? '' : 'bg-gray-100 text-gray-500'}"
                     readonly={!editMode}
                   />
                 </div>
@@ -109,7 +109,7 @@
                     type="text"
                     bind:value={settings["LOGGING"][key]}
                     name={key}
-                    class="p-2 border-2 rounded-lg dark:bg-slate-900 {editMode ? '' : 'bg-gray-100 text-gray-500'}"
+                    class="p-2 border-2 dark:border-blue-900 rounded-lg dark:bg-slate-900 {editMode ? '' : 'bg-gray-100 text-gray-500'}"
                     readonly={!editMode}
                     placeholder="true/false"
                   />
@@ -124,7 +124,7 @@
             {#if !editMode}
               <button
                 id="btn-edit"
-                class="p-2 border-2 rounded-lg flex gap-3 items-center hover:bg-gray-200"
+                class="p-2 border-2 dark:border-blue-900 rounded-lg flex gap-3 items-center hover:bg-gray-200"
                 on:click={edit}
               >
                 <i class="fas fa-edit"></i>
@@ -133,7 +133,7 @@
             {:else}
               <button
                 id="btn-save"
-                class="p-2 border-2 rounded-lg flex gap-3 items-center hover:bg-gray-200"
+                class="p-2 border-2 dark:border-blue-900 rounded-lg flex gap-3 items-center hover:bg-gray-200"
                 on:click={save}
               >
                 <i class="fas fa-save"></i>
@@ -142,7 +142,7 @@
             {/if}
             <button
               id="btn-delete"
-              class="p-2 border-2 rounded-lg flex gap-3 items-center hover:bg-gray-200 bg-amber-600"
+              class="p-2 border-2 dark:border-blue-900 rounded-lg flex gap-3 items-center hover:bg-gray-200 bg-amber-600"
               on:click={deleteAll}
             >
               <i class="fas fa-trash-can"></i>

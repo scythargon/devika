@@ -16,7 +16,7 @@ project_manager = ProjectManager()
 
 
 class Action:
-    REQUIRED_XML_TAGS = ["comment", "action", "next", "actionParams"]
+    REQUIRED_XML_TAGS = ["comment", "action", "next", "actionParams", "fileName"]
 
     def __init__(self, project_name: str, base_model: str):
         config = Config()
@@ -66,6 +66,24 @@ class Action:
 
         project_manager.add_system_message(self.project_name, conversation_message)
 
+    def write_file(self, file_name: str, file_content: str):
+        """
+        Write the file to the project directory.
+        """
+        ensure_dir_exists(self.project_path)
+        file_path = Path(self.project_path).joinpath(file_name)
+        try:
+            with open(file_path, 'w') as f:
+                f.write(file_content)
+        except Exception as e:
+            project_manager.add_system_message(self.project_name, f"Error writing file {file_name}: {e}")
+            return
+
+        project_manager.add_system_message(
+            self.project_name,
+            f"File {file_name} written successfully.\nContent:\n```\n{file_content}\n```"
+        )
+
     def validate_response(self, response: str):
         response = parse_xml_llm_response(response)
 
@@ -75,6 +93,7 @@ class Action:
                 return False
 
         if response["next"] not in ["proceed-to-next-step", "need-users-answer"]:
+            print(colored(f"{self.__class__.__name__}: Invalid 'next' tag in response: {response['next']}", "red"))
             return False
 
         return response
@@ -86,7 +105,7 @@ class Action:
         llm_response = self.validate_response(response)
 
         while not llm_response:
-            print(colored(f"{self.__class__.__name__}: Invalid response from the model: {response}, trying again...",
+            print(colored(f"{self.__class__.__name__}: Invalid response from the model: \n{response}, trying again...",
                           "red"))
             ProjectManager().add_system_message(
                 self.project_name, "Invalid response from the model, trying again..."
@@ -99,9 +118,13 @@ class Action:
         if llm_response["action"] == "execute":
             command = llm_response["actionParams"]
             self.run_code(command)
+        elif llm_response["action"] == "write-file":
+            file_name = llm_response["fileName"]
+            file_content = llm_response["actionParams"]
+            self.write_file(file_name, file_content)
 
         # Execute again if the model asks to continue.
-        if llm_response["next"] == "continue-execution":
+        if llm_response["next"] == "proceed-to-next-step":
             return self.execute()
 
         AgentState().set_agent_completed(self.project_name, True)

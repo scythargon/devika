@@ -95,7 +95,7 @@
   <div class="dropdown-menu relative inline-block">
     <button
       type="button"
-      class="inline-flex items-center justify-center w-full gap-2 rounded-md px-3 py-2 text-sm font-semibold border-2 border-gray-300"
+      class="inline-flex items-center justify-center w-full gap-2 rounded-md px-3 py-2 text-sm font-semibold border-2 border-gray-300 dark:border-blue-900"
       id="project-button"
       aria-expanded="true"
       aria-haspopup="true"
@@ -163,7 +163,7 @@
       <div>
         <button
           type="button"
-          class="inline-flex items-center justify-center w-fit gap-2 rounded-md px-3 py-2 text-sm font-semibold border-2 border-gray-300"
+          class="inline-flex items-center justify-center w-fit gap-2 rounded-md px-3 py-2 text-sm font-semibold border-2 border-gray-300 dark:border-blue-900"
           id="search-engine-button"
           aria-expanded="true"
           aria-haspopup="true"
@@ -205,7 +205,7 @@
       <div>
         <button
           type="button"
-          class="inline-flex items-center justify-center w-fit gap-x-1.5 rounded-md px-3 py-2 text-sm font-semibold border-2 border-gray-300"
+          class="inline-flex items-center justify-center w-fit gap-x-1.5 rounded-md px-3 py-2 text-sm font-semibold border-2 border-gray-300 dark:border-blue-900"
           id="model-button"
           aria-expanded="true"
           aria-haspopup="true"

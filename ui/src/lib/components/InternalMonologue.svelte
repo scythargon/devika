@@ -1,10 +1,10 @@
 <script>
-  import { agentState } from "$lib/store";  
+  import { agentState } from "$lib/store";
 
 </script>
 
 <div
-  class="internal-monologue  border-2 flex items-center justify-center gap-2 px-2 py-4 rounded-lg"
+  class="internal-monologue  border-2 flex items-center justify-center gap-2 px-2 py-0.5 rounded-lg dark:border-blue-900"
 >
   <img
     src="/assets/devika-avatar.png"
@@ -22,8 +22,8 @@
       {:else}
       Deactive
     {/if}
+    <span class="text-xs text-amber-50">{$agentState?.internal_monologue || "😴"}</span>
     </p>
-    <p class="text-xs">{$agentState?.internal_monologue || "😴"}</p>
   </div>
 </div>
 

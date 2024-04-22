@@ -16,11 +16,11 @@
 
 <div
   id="message-container"
-  class="flex flex-col flex-1 gap-2 overflow-y-auto border-2 rounded-lg px-2 py-4"
+  class="flex flex-col flex-1 gap-2 overflow-y-auto border-2 rounded-lg px-2 py-4 dark:border-blue-900"
   bind:this={messageContainer}
 >
   {#if $messages !== null}
-  <div class="flex flex-col px-2 divide-y-2">
+  <div class="flex flex-col px-2 divide-y-2 dark:divide-blue-900">
     {#each $messages as message}
       <div class="flex items-start px-2 py-4 gap-2">
         {#if message.from_devika}
