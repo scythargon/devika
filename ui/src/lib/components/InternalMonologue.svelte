@@ -12,7 +12,7 @@
     class="avatar rounded-full flex-shrink-0"
   />
   <div class="flex flex-col w-full gap-1">
-    <p class="text-xs text-gray-400">Devika's Internal Monologue | Agent status:
+    <p class="text-xs text-gray-400">Agent status:
      {#if $agentState !== null}
       {#if $agentState.agent_is_active}
         <span class="text-green-500">Active</span>

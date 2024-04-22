@@ -46,8 +46,8 @@
 
     agentState.subscribe((state) => {
       if (state && state.terminal_session) {
-        let command = state.terminal_session.command || 'echo "Waiting..."';
-        let output = state.terminal_session.output || "Waiting...";
+        let command = state.terminal_session.command || "";
+        let output = state.terminal_session.output || "";
         let title = state.terminal_session.title || "Terminal";
 
         // Check if the current state is different from the previous state
@@ -76,7 +76,11 @@
       document.getElementById("terminal-title").innerText = title;
     }
     terminal.reset();
-    terminal.write(`$ ${command}\r\n\r\n${output}\r\n`);
+    let terminalContent = "$ ";
+    if (command) {
+      terminalContent = `$ ${command}\r\n\r\n${output}\r\n`;
+    }
+    terminal.write(terminalContent);
   }
 </script>
 

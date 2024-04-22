@@ -102,7 +102,7 @@
   <div class="flex space-x-2">
     <button
       id="send-message-btn"
-      class={`px-4 py-3 text-white rounded-lg flex-grow ${isAgentActive ? "bg-slate-800" : "bg-black"}`}
+      class={`px-4 py-3 text-white rounded-lg flex-grow ${isAgentActive ? "bg-slate-800" : "bg-black dark:bg-blue-800"}`}
       on:click={handleSendMessage}
       disabled={isAgentActive}
     >

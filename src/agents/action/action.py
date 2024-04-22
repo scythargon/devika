@@ -24,6 +24,7 @@ class Action:
         self.project_dir = config.get_projects_dir()
         self.project_path = project_manager.get_project_path(project_name)
         self.llm = LLM(model_id=base_model)
+        self.allowed_steps_left = 5
 
     def render(self) -> str:
         conversation = project_manager.get_all_messages_formatted(self.project_name)
@@ -33,26 +34,43 @@ class Action:
             conversation=conversation
         )
 
-    def run_code(self, command: str):
+    def run_command(self, command: str):
         """
         Try to run the code from the LLM response.
         Add the command, its return code, output and stdout (if any) to the conversation via system messages.
         """
         ensure_dir_exists(self.project_path)
         project_manager.add_system_message(self.project_name, f"Executing Command: {command}\n")
-        process = subprocess.run(
-            command,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            cwd=self.project_path,
-            shell=True
-        )
-        command_output = process.stdout.decode('utf-8')
-        command_stderr = process.stderr.decode('utf-8')
-        # command_succeeded = process.returncode == 0
 
         new_state = AgentState().new_state()
         new_state["internal_monologue"] = "Executing command..."
+        new_state["terminal_session"]["title"] = "Terminal"
+        new_state["terminal_session"]["command"] = command
+        new_state["terminal_session"]["output"] = ""
+        AgentState().add_to_current_state(self.project_name, new_state)
+
+        try:
+            print(colored(f"Executing command: {command}", "yellow"), end="... ", flush=True)
+            process = subprocess.run(
+                f"source ~/.pyenv.sh && pyenv activate test1 && {command}",
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                cwd=self.project_path,
+                shell=True,
+                executable="/opt/homebrew/bin/zsh",
+                timeout=10
+            )
+            print(colored(f"done.", "yellow"))
+            command_output = process.stdout.decode('utf-8') or "No output. Command executed successfully."
+            command_stderr = process.stderr.decode('utf-8')
+            print('stdout:', command_output)
+            print('stderr:', command_stderr)
+        except subprocess.TimeoutExpired:
+            command_output = "Command timed out. (5 seconds)"
+            command_stderr = ""
+
+        new_state = AgentState().new_state()
+        new_state["internal_monologue"] = "Executed command..."
         new_state["terminal_session"]["title"] = "Terminal"
         new_state["terminal_session"]["command"] = command
         new_state["terminal_session"]["output"] = command_output
@@ -60,6 +78,7 @@ class Action:
             new_state["terminal_session"]["output"] += f"\n\nError:\n```\n{command_stderr}\n```"
 
         AgentState().add_to_current_state(self.project_name, new_state)
+
         conversation_message = f"Command output:\n```\n{command_output}\n```\n"
         if command_stderr:
             conversation_message += f"\n\nError:\n```\n{command_stderr}\n```"
@@ -72,6 +91,7 @@ class Action:
         """
         ensure_dir_exists(self.project_path)
         file_path = Path(self.project_path).joinpath(file_name)
+        ensure_dir_exists(file_path.parent)
         try:
             with open(file_path, 'w') as f:
                 f.write(file_content)
@@ -99,7 +119,21 @@ class Action:
         return response
 
     def execute(self) -> str:
+        self.allowed_steps_left -= 1
+
+        if self.allowed_steps_left <= 0:
+            ProjectManager().add_system_message(
+                self.project_name, "Maximum steps reached, stopping the conversation..."
+            )
+            AgentState().set_agent_completed(self.project_name, True)
+            return
+
         prompt = self.render()
+        new_state = AgentState().new_state()
+        new_state["internal_monologue"] = "Thinking..."
+        new_state["terminal_session"]["title"] = "Terminal"
+        AgentState().add_to_current_state(self.project_name, new_state)
+
         response = self.llm.inference(prompt, self.project_name)
 
         llm_response = self.validate_response(response)
@@ -117,7 +151,7 @@ class Action:
         # Execute the command if any.
         if llm_response["action"] == "execute":
             command = llm_response["actionParams"]
-            self.run_code(command)
+            self.run_command(command)
         elif llm_response["action"] == "write-file":
             file_name = llm_response["fileName"]
             file_content = llm_response["actionParams"]

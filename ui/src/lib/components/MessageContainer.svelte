@@ -68,7 +68,7 @@
             <div class="w-full" contenteditable="false">
               {@html message.message.replace(
                 /```(.*?)```/gs,
-                '<pre>$1</pre>'
+                '<pre style="text-wrap: wrap;">$1</pre>'
               )}
             </div>
           {:else}
