@@ -73,6 +73,13 @@ class ProjectManager:
         #     "timestamp": timestamp
         # }
 
+    def clear_conversation(self, project: str):
+        with Session(self.engine) as session:
+            project_state = session.query(Projects).filter(Projects.project == project).first()
+            if project_state:
+                project_state.message_stack_json = json.dumps([])
+                session.commit()
+
     def create_project(self, project: str):
         with Session(self.engine) as session:
             project_state = Projects(project=project, message_stack_json=json.dumps([]))

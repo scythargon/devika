@@ -43,6 +43,10 @@
       tokenUsage.set(tokens["token_usage"]);
     });
 
+    socket.on('clear-conversation', function() {
+      messages.set([]);
+    });
+
 });
 </script>
 

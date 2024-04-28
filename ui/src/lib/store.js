@@ -1,4 +1,5 @@
 import { writable } from 'svelte/store';
+import {fetchAgentState, fetchMessages} from "$lib/api.js";
 
 const getInitialSelectedProject = () => {
   if (typeof window !== 'undefined' && window.localStorage) {
@@ -41,3 +42,11 @@ selectedModel.subscribe((value) => {
     localStorage.setItem('selectedModel', value);
   }
 });
+
+export function selectProject(project) {
+  localStorage.setItem("selectedProject", project);
+  fetchMessages();
+  fetchAgentState();
+  document.getElementById("project-dropdown").classList.add("hidden");
+  window.location.hash = encodeURIComponent(project);
+}

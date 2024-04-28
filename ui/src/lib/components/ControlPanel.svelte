@@ -1,6 +1,6 @@
 <script>
   import {onMount} from "svelte";
-  import {agentState, internet, messages, modelList, projectList, searchEngineList, tokenUsage} from "$lib/store";
+  import {agentState, internet, messages, modelList, projectList, searchEngineList, tokenUsage, selectProject} from "$lib/store";
   import {createProject, deleteProject, fetchAgentState, fetchInitialData, fetchMessages} from "$lib/api";
   import {get} from "svelte/store";
 
@@ -17,14 +17,11 @@
   selectedModel = getFromLocalStorageOrFallback("selectedModel", "Select Model");
   selectedSearchEngine = getFromLocalStorageOrFallback("selectedSearchEngine", "Select Search Engine");
 
-
-  function selectProject(project) {
+  function _selectProject(project) {
     selectedProject = project;
-    localStorage.setItem("selectedProject", project);
-    fetchMessages();
-    fetchAgentState();
-    document.getElementById("project-dropdown").classList.add("hidden");
+    selectProject(project);
   }
+
   function selectModel(model) {
     selectedModel = `${model[0]}`;
     localStorage.setItem("selectedModel", model[1]);
@@ -126,7 +123,7 @@
               <button
                 href="#"
                 class="flex gap-2 items-center text-sm py-3 w-full h-full overflow-x-visible"
-                on:click|preventDefault={() => selectProject(project)}
+                on:click|preventDefault={() => _selectProject(project)}
               >
                 {project}
               </button>

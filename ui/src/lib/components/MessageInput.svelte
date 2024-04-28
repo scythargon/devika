@@ -70,6 +70,13 @@
     }
   }
 
+  async function handleClearConversation() {
+    const projectName = localStorage.getItem("selectedProject");
+    if (confirm("Are you sure you want to clear the conversation?")) {
+      socket.emit("clear-conversation", {project_name: projectName});
+    }
+  }
+
   async function handleStop() {
     const projectName = localStorage.getItem("selectedProject");
     if (isAgentActive) {
@@ -118,12 +125,21 @@
     </button>
     <button
       id="stop-btn"
-      class={`px-4 py-3 text-white rounded-lg w-auto ${isAgentActive ? "bg-red-500" : "bg-slate-800"}`}
+      class={`px-4 py-3 text-white rounded-lg w-auto ${isAgentActive ? "bg-orange-500" : "bg-slate-800"}`}
       on:click={handleStop}
       disabled={!isAgentActive}
     >
       <i class="fas fa-stop"></i>
     </button>
+
+    <button
+      id="stop-btn"
+      class={`px-4 py-3 text-white rounded-lg w-auto bg-red-500`}
+      on:click={handleClearConversation}
+    >
+      <i class="fas fa-trash"></i>
+    </button>
+
   </div>
 </div>
 

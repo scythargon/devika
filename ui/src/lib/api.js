@@ -4,7 +4,7 @@ import {
   modelList,
   projectList,
   messages,
-  searchEngineList,
+  searchEngineList, selectProject,
 } from "./store";
 import {io} from "socket.io-client";
 
@@ -28,6 +28,14 @@ export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || getApiBaseUrl()
 export const socket = io(API_BASE_URL);
 
 
+function loadProjectFromPageHash() {
+  const hash = window.location.hash;
+  if (hash.startsWith("#")) {
+    const projectName = hash.substring(1);
+    selectProject(projectName);
+  }
+}
+
 export async function fetchInitialData() {
   const response = await fetch(`${API_BASE_URL}/api/data`);
   const data = await response.json();
@@ -35,6 +43,7 @@ export async function fetchInitialData() {
   modelList.set(data.models);
   searchEngineList.set(data.search_engines);
   localStorage.setItem("defaultData", JSON.stringify(data));
+  loadProjectFromPageHash();
 }
 
 export async function createProject(projectName) {

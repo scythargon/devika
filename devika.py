@@ -106,6 +106,14 @@ def regenerate(data):
     agent = Action(project_name=project_name, base_model=base_model)
     agent.execute()
 
+
+@socketio.on('clear-conversation')
+def clear_conversation(data):
+    project_name = data.get('project_name')
+    manager.clear_conversation(project_name)
+    emit_agent("clear-conversation", {})
+
+
 @socketio.on('stop')
 def regenerate(data):
     print("STOPPING")
